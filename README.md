@@ -1,5 +1,5 @@
 
-`# Chimera Clan Web Application
+# Chimera Clan Web Application
 
 Welcome to the Chimera Clan Web Application, your central hub for all clan-related activities and information.
 
