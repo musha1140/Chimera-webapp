@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 215 28% 17%;
+    --foreground: 0 0% 100%;
+
+    --card: 215 28% 17%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 215 28% 17%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 215 28% 17%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 215 25% 27%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 215 28% 17%;
+
+    --radius: 0.5rem;
+  }
+}
+
+.dark {
+  --background: 215 28% 17%;
+  --foreground: 0 0% 100%;
+
+  --card: 215 28% 17%;
+  --card-foreground: 0 0% 100%;
+
+  --popover: 215 28% 17%;
+  --popover-foreground: 0 0% 100%;
+
+  --primary: 215 28% 17%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 215 25% 27%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 215 25% 27%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 215 25% 27%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 215 28% 17%;
+  --input: 215 28% 17%;
+  --ring: 215 28% 17%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-color: hsl(215 28% 17%);
+  }
+  :root {
+    --background: 215 28% 17%;
+    --foreground: 0 0% 100%;
+    --card: 215 28% 17%;
+    --card-foreground: 0 0% 100%;
+    --popover: 215 28% 17%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 215 28% 17%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 215 25% 27%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 215 28% 17%;
+    --radius: 0.5rem;
+  }
+}
+
+/* Add these new styles for Select component */
+[data-radix-select-viewport] {
+  background-color: #1a202c !important;
+  color: white !important;
+}
+
+[data-radix-select-item] {
+  color: white !important;
+}
+
+[data-radix-select-item][data-highlighted] {
+  background-color: #2d3748 !important;
+  color: white !important;
+}
+
+/* Style for Dialog overlay */
+[data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Style for Dialog content */
+[data-radix-dialog-content] {
+  background-color: #1a202c !important;
+  border-color: #2d3748 !important;
+}
+
+@font-face {
+  font-family: "Impact";
+  src: local("Impact");
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.font-impact {
+  font-family: "Impact", system-ui, -apple-system, sans-serif;
+}
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-1deg);
+  }
+  75% {
+    transform: rotate(1deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.3s ease-in-out infinite;
+}
+
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes smokeDrift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
