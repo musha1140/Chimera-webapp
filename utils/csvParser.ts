@@ -24,3 +24,15 @@ export async function fetchAndParseCSV(url: string) {
     throw error
   }
 }
+
+export function exportToCSV(data: any[]): string {
+  return Papa.unparse(data)
+}
+
+export function importFromCSV(csvData: string): any[] {
+  const results = Papa.parse(csvData, {
+    header: true,
+    dynamicTyping: true,
+  })
+  return results.data
+}

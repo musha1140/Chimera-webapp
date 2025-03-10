@@ -4,8 +4,15 @@ import { sql } from "@vercel/postgres"
 import { revalidatePath } from "next/cache"
 import { Resend } from "resend"
 import type { ShadowWar, Tower, Member } from "@/lib/types"
+import { exportToCSV, importFromCSV } from "@/utils/csvParser"
+import { exportToPNG, importFromPNG } from "@/utils/imageParser"
+import { JWT } from "google-auth-library"
+import { GoogleSpreadsheet } from "google-spreadsheet"
+import * as googleServiceAccountPrivateKey from "./google-service-account-privatekey.json"
 
 const resend = new Resend("re_ZHfcThLv_PgEgPPVk3peuaPB67zQ3Nyyn")
+
+const GOOGLE_SPREAD_SHEET_DOCUMENT_ID = "1EVsyjDkw5ni4d0EA-pNHhb99FS369eSMjzaazEKq9c4"
 
 // Add the getMembers function
 export async function getMembers(): Promise<Member[]> {
@@ -317,3 +324,78 @@ export async function initializeDatabase() {
   }
 }
 
+// Add a new function to export members data to a CSV file
+export async function exportMembersToCSV(): Promise<string> {
+  try {
+    const members = await getMembers()
+    const csvData = exportToCSV(members)
+    return csvData
+  } catch (error) {
+    console.error("Error exporting members to CSV:", error)
+    throw new Error("Failed to export members to CSV")
+  }
+}
+
+// Add a new function to export members data to a PNG file
+export async function exportMembersToPNG(): Promise<Buffer> {
+  try {
+    const members = await getMembers()
+    const pngData = await exportToPNG(members)
+    return pngData
+  } catch (error) {
+    console.error("Error exporting members to PNG:", error)
+    throw new Error("Failed to export members to PNG")
+  }
+}
+
+// Add a new function to import members data from a CSV file
+export async function importMembersFromCSV(csvData: string): Promise<void> {
+  try {
+    const members = importFromCSV(csvData)
+    for (const member of members) {
+      await addMember(member)
+    }
+  } catch (error) {
+    console.error("Error importing members from CSV:", error)
+    throw new Error("Failed to import members from CSV")
+  }
+}
+
+// Add a new function to import members data from a PNG file
+export async function importMembersFromPNG(pngData: Buffer): Promise<void> {
+  try {
+    const members = await importFromPNG(pngData)
+    for (const member of members) {
+      await addMember(member)
+    }
+  } catch (error) {
+    console.error("Error importing members from PNG:", error)
+    throw new Error("Failed to import members from PNG")
+  }
+}
+
+// Add a new function to fetch members data from Google Sheets
+export async function getMembersFromGoogleSheetsRoster(): Promise<any[]> {
+  console.log("Loading roster from Google Drive...")
+  const serviceAccountAuth = new JWT({
+    email: googleServiceAccountPrivateKey.client_email,
+    key: googleServiceAccountPrivateKey.private_key,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  })
+  const doc = new GoogleSpreadsheet(GOOGLE_SPREAD_SHEET_DOCUMENT_ID, serviceAccountAuth)
+  await doc.loadInfo()
+
+  const worksheet = doc.sheetsByTitle["Clan Roster"]
+  const rows = await worksheet.getRows()
+
+  const memberData = rows.map((row) => ({
+    name: row["Member Name"],
+    class: row["Class"],
+    cr: row["CR"],
+    resonance: row["Resonance"],
+    level: row["Level"],
+    isReady: row["Is Ready"] === "TRUE",
+  }))
+
+  return memberData
+}

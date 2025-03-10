@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Plus, X, Swords } from "lucide-react"
+import { Plus, X, Swords, Download, Upload } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
@@ -14,7 +14,7 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { CalendarIcon } from "lucide-react"
 import { ChimeraHeader } from "@/components/chimera-header"
-import { getTowers, addTower, updateTower, deleteTower, getMembers, initializeDatabase } from "../actions"
+import { getTowers, addTower, updateTower, deleteTower, getMembers, initializeDatabase, exportMembersToCSV, exportMembersToPNG, importMembersFromCSV, importMembersFromPNG, getMembersFromGoogleSheetsRoster } from "../actions"
 import type { ContestInfo, Tower, Member } from "@/lib/types"
 
 const towerTypes = [
@@ -170,6 +170,85 @@ export default function TowersPage() {
   }
 
   const filteredMembers = members.filter((member) => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+
+  const handleExportCSV = async () => {
+    try {
+      const csvData = await exportMembersToCSV()
+      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" })
+      const link = document.createElement("a")
+      const url = URL.createObjectURL(blob)
+      link.setAttribute("href", url)
+      link.setAttribute("download", "members.csv")
+      link.style.visibility = "hidden"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error("Error exporting members to CSV:", error)
+    }
+  }
+
+  const handleExportPNG = async () => {
+    try {
+      const pngData = await exportMembersToPNG()
+      const blob = new Blob([pngData], { type: "image/png" })
+      const link = document.createElement("a")
+      const url = URL.createObjectURL(blob)
+      link.setAttribute("href", url)
+      link.setAttribute("download", "members.png")
+      link.style.visibility = "hidden"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error("Error exporting members to PNG:", error)
+    }
+  }
+
+  const handleImportCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const csvData = e.target?.result as string
+        try {
+          await importMembersFromCSV(csvData)
+          const updatedMembers = await getMembersFromGoogleSheetsRoster()
+          setMembers(updatedMembers)
+        } catch (error) {
+          console.error("Error importing members from CSV:", error)
+        }
+      }
+      reader.readAsText(file)
+    }
+  }
+
+  const handleImportPNG = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const pngData = e.target?.result as ArrayBuffer
+        try {
+          await importMembersFromPNG(Buffer.from(pngData))
+          const updatedMembers = await getMembersFromGoogleSheetsRoster()
+          setMembers(updatedMembers)
+        } catch (error) {
+          console.error("Error importing members from PNG:", error)
+        }
+      }
+      reader.readAsArrayBuffer(file)
+    }
+  }
+
+  const handleFetchFromGoogleSheets = async () => {
+    try {
+      const googleSheetMembers = await getMembersFromGoogleSheetsRoster()
+      setMembers(googleSheetMembers)
+    } catch (error) {
+      console.error("Error fetching members from Google Sheets:", error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-black">
@@ -416,8 +495,24 @@ export default function TowersPage() {
             </div>
           </DialogContent>
         </Dialog>
+
+        <div className="flex gap-2 mt-4">
+          <Button onClick={handleExportCSV} className="bg-[#2d3748] text-white hover:bg-[#3a4759]">
+            Export CSV <Download className="ml-2 h-4 w-4" />
+          </Button>
+          <Button onClick={handleExportPNG} className="bg-[#2d3748] text-white hover:bg-[#3a4759]">
+            Export PNG <Download className="ml-2 h-4 w-4" />
+          </Button>
+          <label htmlFor="importCSV" className="bg-[#2d3748] text-white hover:bg-[#3a4759] cursor-pointer flex items-center px-4 py-2 rounded-md">
+            Import CSV <Upload className="ml-2 h-4 w-4" />
+            <input id="importCSV" type="file" accept=".csv" onChange={handleImportCSV} className="hidden" />
+          </label>
+          <label htmlFor="importPNG" className="bg-[#2d3748] text-white hover:bg-[#3a4759] cursor-pointer flex items-center px-4 py-2 rounded-md">
+            Import PNG <Upload className="ml-2 h-4 w-4" />
+            <input id="importPNG" type="file" accept=".png" onChange={handleImportPNG} className="hidden" />
+          </label>
+        </div>
       </div>
     </div>
   )
 }
-
